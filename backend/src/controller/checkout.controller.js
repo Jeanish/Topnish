@@ -42,105 +42,70 @@ const checkOutSession = asyncHandler(async (req, res) => {
 });
 
 const finalizeCheckout = asyncHandler(async (req, res) => {
+  const checkout = await CheckOut.findById(req.params.id).populate("user");
+
+  if (!checkout) {
+    throw new ApiError(404, "Checkout not found");
+  }
+
+  const isCOD = checkout.paymentMethod?.toLowerCase() === "cash on delivery";
+
+  if (checkout.isFinalized) {
+    throw new ApiError(400, "Checkout already finalized");
+  }
+
+  if (!isCOD && !checkout.isPaid) {
+    throw new ApiError(400, "Checkout is not paid or invalid payment method");
+  }
+
+  const finalOrder = await Order.create({
+    user: checkout.user._id,
+    orderItems: checkout.checkOutItems,
+    shippingAddress: checkout.shippingAddress,
+    paymentMethod: checkout.paymentMethod,
+    totalPrice: checkout.totalPrice,
+    isPaid: isCOD ? false : true,
+    paidAt: isCOD ? null : checkout.paidAt,
+    isDelivered: false,
+    paymentStatus: isCOD ? "COD Pending" : "Paid",
+    paymentDetails: checkout.paymentDetails,
+  });
+
+  checkout.isFinalized = true;
+  checkout.finalizedAt = Date.now();
+  await checkout.save();
+
+  // Clear user's cart
+  await Cart.findOneAndDelete({ user: checkout.user._id });
+
+  // === Shiprocket Integration Starts ===
+  let shiprocketResponse = null;
+
   try {
-    const checkout = await CheckOut.findById(req.params.id).populate("user");
-
-    if (!checkout) {
-      throw new ApiError(404, "Checkout not found");
-    }
-
-    const isCOD = checkout.paymentMethod?.toLowerCase() === "cash on delivery";
-
-    if (checkout.isFinalized) {
-      throw new ApiError(400, "Checkout already finalized");
-    }
-
-    if (!isCOD && !checkout.isPaid) {
-      throw new ApiError(400, "Checkout is not paid or invalid payment method");
-    }
-
-    const finalOrder = await Order.create({
-      user: checkout.user._id,
-      orderItems: checkout.checkOutItems,
-      shippingAddress: checkout.shippingAddress,
-      paymentMethod: checkout.paymentMethod,
-      totalPrice: checkout.totalPrice,
-      isPaid: isCOD ? false : true,
-      paidAt: isCOD ? null : checkout.paidAt,
-      isDelivered: false,
-      paymentStatus: isCOD ? "COD Pending" : "Paid",
-      paymentDetails: checkout.paymentDetails,
-    });
-
-    checkout.isFinalized = true;
-    checkout.finalizedAt = Date.now();
-    await checkout.save();
-
-    // Clean up cart
-    await Cart.findOneAndDelete({ user: checkout.user._id });
-
-    // === Shiprocket Integration Starts ===
-    let shiprocketResponse = null;
-    try {
-      const token = await getShiprocketToken();
-
-      const shipmentPayload = {
-        // ...same payload code...
-      };
-
-      const shipmentRes = await axios.post(
-        "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
-        shipmentPayload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("📦 Shiprocket shipment created:", shipmentRes.data);
-      shiprocketResponse = shipmentRes.data;
-    } catch (shipErr) {
-      console.error(
-        "❌ Shiprocket Error:",
-        shipErr?.response?.data || shipErr.message
-      );
-      // Not throwing error — allowing order to be finalized regardless
-    }
-    // === Shiprocket Integration Ends ===
-
-    res.status(201).json({
-      message: "Order finalized successfully",
-      order: finalOrder,
-      shiprocket: shiprocketResponse || "Shiprocket shipment failed",
-    });
-    console.log(checkout.shippingAddress);
-
-    // === Shiprocket Integration Starts ===
     const token = await getShiprocketToken();
 
     const shipmentPayload = {
       order_id: finalOrder._id.toString(),
       order_date: new Date().toISOString().slice(0, 10),
-      pickup_location: "Home", // Must match pickup location added in Shiprocket panel
+      pickup_location: "Home", // Must match your Shiprocket dashboard location
       billing_customer_name:
         checkout.shippingAddress.name || checkout.user.name || "Customer",
-      billing_last_name: "", // Optional, but you can add if needed
+      billing_last_name: "",
       billing_address: checkout.shippingAddress.address,
       billing_city: checkout.shippingAddress.city,
       billing_pincode: checkout.shippingAddress.postalCode,
-      billing_state: "Gujarat", // Add this!
+      billing_state: "Gujarat",
       billing_country: checkout.shippingAddress.country,
       billing_email: checkout.user.email,
       billing_phone: checkout.shippingAddress.phone || "9081226874",
 
       shipping_customer_name:
         checkout.shippingAddress.name || checkout.user.name || "Customer",
-      shipping_last_name: "", // Optional
+      shipping_last_name: "",
       shipping_address: checkout.shippingAddress.address,
       shipping_city: checkout.shippingAddress.city,
       shipping_pincode: checkout.shippingAddress.postalCode,
-      shipping_state: "Gujarat", // Add this!
+      shipping_state: "Gujarat",
       shipping_country: checkout.shippingAddress.country,
       shipping_email: checkout.user.email,
       shipping_phone: checkout.shippingAddress.phone || "9081226874",
@@ -152,7 +117,7 @@ const finalizeCheckout = asyncHandler(async (req, res) => {
         sku: item.productId.toString(),
         units: item.quantity,
         selling_price: item.price,
-        hsn: "640351", // Optional, but useful for product categorization
+        hsn: "640351",
       })),
 
       payment_method: isCOD ? "COD" : "Prepaid",
@@ -173,18 +138,20 @@ const finalizeCheckout = asyncHandler(async (req, res) => {
       }
     );
 
-    console.log("📦 Shiprocket shipment created:", shipmentRes.data);
-    // === Shiprocket Integration Ends ===
-
-    res.status(201).json({
-      order: finalOrder,
-      shiprocket: shipmentRes.data,
-    });
-  } catch (error) {
-    console.error(error);
-    throw new ApiError(500, error.message || "Server error");
+    shiprocketResponse = shipmentRes.data;
+    console.log("📦 Shiprocket order created:", shiprocketResponse);
+  } catch (shipErr) {
+    console.error("❌ Shiprocket Error:", shipErr?.response?.data || shipErr.message);
   }
+  // === Shiprocket Integration Ends ===
+
+  res.status(201).json({
+    message: "Order finalized successfully",
+    order: finalOrder,
+    shiprocket: shiprocketResponse || "Shiprocket shipment failed",
+  });
 });
+
 
 const payment = asyncHandler(async (req, res) => {
   const { paymentStatus, paymentDetails } = req.body;

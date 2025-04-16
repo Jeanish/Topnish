@@ -6,15 +6,25 @@ const USER_TOKEN = `Bearer ${localStorage.getItem("userToken")}`;
 
 export const fetchAdminProducts = createAsyncThunk(
   "adminProducts/fetchProducts",
-  async () => {
-    const response = await axios.get(`${API_URL}/api/v1/admin/products`, {
-      headers: {
-        Authorization: USER_TOKEN,
-      },
-    });
-    return response.data;
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("userToken");
+
+      const response = await axios.get(`${API_URL}/api/v1/admin/products`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products"
+      );
+    }
   }
 );
+
 
 export const createProduct = createAsyncThunk(
   "adminProducts/createProduct",
