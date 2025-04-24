@@ -69,32 +69,38 @@ function NewArrivals() {
   return (
     <section className="py-16 px-4 lg:px-8 select-none">
       <div className="container mx-auto text-center mb-10 relative">
-        <h2 className="text-3xl font-bold mb-4">🆕 Explore New Arrivals</h2>
+        <h2 className="text-3xl font-bold mb-4">Explore New Arrivals</h2>
         <p className="text-lg text-gray-600 mb-8">
           Discover the latest styles straight off the runway, freshly added to keep your wardrobe on point.
         </p>
 
-        {/* Scroll buttons */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex space-x-2 z-10">
-          <button
-            onClick={() => scroll("left")}
-            disabled={!canScrollLeft}
-            className={`p-2 rounded-full shadow ${
-              canScrollLeft ? "bg-white text-black" : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            } transition`}
-          >
-            <FiChevronLeft className="text-2xl" />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            disabled={!canScrollRight}
-            className={`p-2 rounded-full shadow ${
-              canScrollRight ? "bg-white text-black" : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            } transition`}
-          >
-            <FiChevronRight className="text-2xl" />
-          </button>
-        </div>
+{/* Scroll buttons */}
+<div className="relative mb-4 sm:mb-0">
+  <div className="absolute right-2 top-[-29px] sm:top-1/2 sm:-translate-y-1/2 flex space-x-2 sm:flex-col sm:space-x-0 sm:space-y-2 z-10">
+    <button
+      onClick={() => scroll("left")}
+      disabled={!canScrollLeft}
+      className={`p-3 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-gray-200 hover:bg-white hover:shadow-lg transition active:scale-95 ${
+        !canScrollLeft ? "opacity-30 cursor-not-allowed" : "opacity-100"
+      }`}
+    >
+      <FiChevronLeft className="text-2xl text-gray-700" />
+    </button>
+    <button
+      onClick={() => scroll("right")}
+      disabled={!canScrollRight}
+      className={`p-3 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-gray-200 hover:bg-white hover:shadow-lg transition active:scale-95 ${
+        !canScrollRight ? "opacity-30 cursor-not-allowed" : "opacity-100"
+      }`}
+    >
+      <FiChevronRight className="text-2xl text-gray-700" />
+    </button>
+  </div>
+</div>
+
+
+
+
       </div>
 
       {/* Scrollable Product Cards */}

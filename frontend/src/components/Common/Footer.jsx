@@ -83,7 +83,7 @@ function Footer() {
               <TbBrandMeta />
             </a>
             <a
-              href="https://www.instagram.com"
+              href="https://www.instagram.com/topnish.store?igsh=MXc4OWtodzU1N25jeQ=="
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-700 hover:text-pink-500 transition-all text-2xl"
@@ -101,7 +101,7 @@ function Footer() {
           </div>
           <p className="text-gray-600 font-medium">Support Mail</p>
           <p className="text-gray-800 font-semibold text-lg flex items-center mt-2">
-            <FiMail className="mr-2" /> support@topnish.com
+            <FiMail className="mr-2" /> contact@topnish.com
           </p>
         </div>
       </div>

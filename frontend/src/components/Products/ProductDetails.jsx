@@ -3,12 +3,16 @@ import { toast } from "sonner";
 import ProductGrid from "./ProductGrid";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProductDetails, fetchSimilarProducts } from "../../redux/slices/productSlice";
+import {
+  fetchProductDetails,
+  fetchSimilarProducts,
+} from "../../redux/slices/productSlice";
 import { addToCart } from "../../redux/slices/cartSlice";
 
 const ProductDetails = ({ productId }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const { selectedProduct, loading, error, similarProducts } = useSelector(
     (state) => state.products
@@ -26,6 +30,7 @@ const ProductDetails = ({ productId }) => {
   // ✅ always call hooks unconditionally
   useEffect(() => {
     if (productFetchId) {
+      window.scrollTo(0, 0);
       dispatch(fetchProductDetails(productFetchId));
       dispatch(fetchSimilarProducts({ id: productFetchId }));
     }
@@ -77,7 +82,7 @@ const ProductDetails = ({ productId }) => {
   if (error) return <p>Error: {error}</p>;
   if (!selectedProduct) return null;
   console.log(selectedProduct);
-  
+
   console.log("similarProducts", similarProducts);
 
   return (
@@ -130,12 +135,38 @@ const ProductDetails = ({ productId }) => {
             </h1>
 
             <p className="text-lg text-gray-600 mb-1 line-through">
-             ₹{selectedProduct.price}
+              ₹{selectedProduct.price}
             </p>
             <p className="text-xl text-gray-500 mb-2">
-             ₹{selectedProduct.discountPrice}
+              ₹{selectedProduct.discountPrice}
             </p>
-            <p className="text-gray-600 mb-4">{selectedProduct.description}</p>
+            <p
+              className={`text-gray-600 mb-4 ${
+                isDescriptionExpanded ? "" : "line-clamp-1"
+              }`}
+            >
+              {selectedProduct.description}
+            </p>
+
+            {/* See More Button */}
+            {!isDescriptionExpanded && (
+              <button
+                onClick={() => setIsDescriptionExpanded(true)}
+                className="text-blue-600 underline"
+              >
+                See More
+              </button>
+            )}
+
+            {/* See Less Button */}
+            {isDescriptionExpanded && (
+              <button
+                onClick={() => setIsDescriptionExpanded(false)}
+                className="text-blue-600 underline"
+              >
+                See Less
+              </button>
+            )}
 
             {/* Colors */}
             <div className="mb-4">

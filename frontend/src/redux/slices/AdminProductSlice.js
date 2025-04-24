@@ -28,19 +28,29 @@ export const fetchAdminProducts = createAsyncThunk(
 
 export const createProduct = createAsyncThunk(
   "adminProducts/createProduct",
-  async (productData) => {
-    const response = await axios.post(
-      `${API_URL}/api/v1/products/`,
-      productData,
-      {
-        headers: {
-          Authorization: USER_TOKEN,
-        },
-      }
-    );
-    return response.data;
+  async (productData, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("userToken");
+
+      const response = await axios.post(
+        `${API_URL}/api/v1/products/`,
+        productData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to create product"
+      );
+    }
   }
 );
+
 
 export const updateProduct = createAsyncThunk(
   "adminProducts/updateProduct",

@@ -49,7 +49,7 @@ function OrderManagement() {
                                 #{order._id}
                             </td>
 
-                            <td className="p-4">{order.user.username}</td>
+                            <td className="p-4">{order.user ? order.user.username : "Guest"}</td>
                             <td className="p-4">{order.totalPrice.toFixed(2)}</td>
                             <td className="p-4">
                                 <select id="" value={order.status} onChange={(e) => handleStatusChange(order._id, e.target.value)} className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5'>

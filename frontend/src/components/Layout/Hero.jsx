@@ -43,7 +43,7 @@ export default function Hero() {
             transition={{ delay: 0.5, duration: 0.6, ease: "easeOut" }}
           >
             <Link
-              to="#"
+              to="/collections/all"
               className="bg-white text-gray-900 px-6 py-3 text-lg font-semibold rounded-lg shadow-lg transition duration-300 ease-in-out hover:bg-gray-200 hover:scale-105"
             >
               Shop Now
