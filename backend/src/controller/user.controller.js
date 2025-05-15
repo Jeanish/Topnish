@@ -104,5 +104,72 @@ const profile = asyncHandler(async(req,res)=>{
     return res.json(req.user);
 })
 
-export { register,  login,profile };
+import { OtpModel } from "../models/Otp.model.js";
+import { sendOTP } from "../utils/sms.service.js";
+
+// routes/authRoutes.js
+const sendOTPHandler = asyncHandler(async (req, res) => {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ message: 'Phone number is required' });
+  
+    const existing = await OtpModel.findOne({ phone });
+  
+    if (existing && Date.now() - existing.createdAt.getTime() < 60000) {
+      return res.status(429).json({ message: 'Please wait before requesting another OTP' });
+    }
+  
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+    await OtpModel.findOneAndUpdate(
+      { phone },
+      {
+        phone,
+        otp,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + 5 * 60000),
+        $inc: { attempts: 1 },
+      },
+      { upsert: true, new: true }
+    );
+  
+    await smsService.sendOtp(phone, otp); // Replace with real provider
+  
+    res.status(200).json({ message: 'OTP sent successfully' });
+  });
+  
+  
+  const verifyOTP = asyncHandler(async (req, res) => {
+    const { phone, otp } = req.body;
+    if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP required' });
+  
+    const record = await OtpModel.findOne({ phone });
+  
+    if (!record || record.otp !== otp) {
+      return res.status(400).json({ message: 'Invalid OTP' });
+    }
+  
+    if (record.expiresAt < Date.now()) {
+      await OtpModel.deleteOne({ phone });
+      return res.status(400).json({ message: 'OTP expired' });
+    }
+
+    record.verified = true;
+    record.verifiedAt = Date.now();
+    await record.save();
+  
+    // OTP valid
+    await OtpModel.deleteOne({ phone }); // Clear used OTP
+  
+    // Create or find user
+    let user = await User.findOne({ phone });
+    if (!user) user = await User.create({ phone });
+  
+    const token = createJwtToken(user._id);
+  
+    res.status(200).json({ message: 'OTP verified', token });
+  });
+  
+  
+
+export { register,  login,profile, sendOTPHandler,verifyOTP };
 

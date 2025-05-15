@@ -11,13 +11,19 @@ import {
   createShiprocketOrder,
 } from "../utils/shiprocket.service.js";
 import axios from "axios";
+import { OtpModel } from "../models/Otp.model.js";
 
 const checkOutSession = asyncHandler(async (req, res) => {
-  const { checkoutItems, shippingAddress, paymentMethod, totalPrice, phone } =
-    req.body;
+  const { checkoutItems, shippingAddress, paymentMethod, totalPrice, phone } = req.body;
 
   if (!checkoutItems || checkoutItems.length === 0) {
     throw new ApiError(400, "No items in checkout");
+  }
+
+  // ✅ OTP verification check
+  const otpRecord = await OtpModel.findOne({ phone, verified: true });
+  if (!otpRecord || Date.now() - new Date(otpRecord.verifiedAt).getTime() > 5 * 60 * 1000) {
+    throw new ApiError(401, "Phone number not verified or OTP expired");
   }
 
   try {
@@ -27,13 +33,16 @@ const checkOutSession = asyncHandler(async (req, res) => {
       shippingAddress,
       paymentMethod,
       totalPrice,
-      paymentStatus:
-        paymentMethod === "Cash On Delivery" ? "COD Pending" : "Pending",
+      paymentStatus: paymentMethod === "Cash On Delivery" ? "COD Pending" : "Pending",
       isPaid: paymentMethod === "Cash On Delivery" ? false : true,
       phone: phone,
     });
 
     console.log(`Checkout created for user: ${req.user._id}`);
+
+    // Clean OTP record after successful checkout creation
+    await OtpModel.deleteMany({ phone });
+
     res.status(201).json(newCheckout);
   } catch (error) {
     console.error("Error creating checkout session:", error);

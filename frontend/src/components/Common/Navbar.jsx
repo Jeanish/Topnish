@@ -18,7 +18,8 @@ function Navbar() {
   const { user } = useSelector((state) => state.auth);
 
   const cartItemCount =
-    cart?.products?.reduce((total, product) => total + product.quantity, 0) || 0;
+    cart?.products?.reduce((total, product) => total + product.quantity, 0) ||
+    0;
 
   const toggleNavDrawer = () => {
     setNavDrawerOpen(!navDrawerOpen);
@@ -30,52 +31,67 @@ function Navbar() {
 
   return (
     <>
-      <nav className="container mx-auto flex items-center justify-between py-4 px-6 bg-white shadow-md">
-        {/* Logo */}
-        <div>
-          <Link to="/" className="text-2xl font-bold text-gray-900 hover:text-gray-700 transition duration-200">
-            <img src={Logo} alt="Topnish Logo" className="h-10" />
-          </Link>
-        </div>
-
-        {/* Desktop Nav */}
-        <div className="hidden md:flex space-x-6">
-          <Link
-            to="/collections/all"
-            className="text-gray-700 hover:text-black text-sm font-medium uppercase transition duration-200"
-          >
-            All Collections
-          </Link>
-        </div>
-
-        {/* Right Icons */}
-        <div className="flex items-center space-x-6">
-          {user && user.role === "admin" && (
-            <Link to="/admin" className="block bg-black px-2 rounded text-sm text-white">
-              Admin
+      <div className="pt-16">
+        {" "}
+        {/* 👈 Add this wrapper div with pt-14 (56px) */}
+        <nav className="container mx-auto flex items-center justify-between py-4 px-6 bg-white shadow-md">
+          {/* Logo */}
+          <div>
+            <Link
+              to="/"
+              className="text-2xl font-bold text-gray-900 hover:text-gray-700 transition duration-200"
+            >
+              <img src={Logo} alt="Topnish Logo" className="h-10" />
             </Link>
-          )}
+          </div>
 
-          <Link to="/profile" className="hover:text-black transition duration-200">
-            <HiOutlineUser className="h-6 w-6 text-gray-700 hover:scale-110 transition-transform duration-200" />
-          </Link>
+          {/* Desktop Nav */}
+          <div className="hidden md:flex space-x-6">
+            <Link
+              to="/collections/all"
+              className="text-gray-700 hover:text-black text-sm font-medium uppercase transition duration-200"
+            >
+              All Collections
+            </Link>
+          </div>
 
-          <button onClick={toggleCartDrawer} className="relative hover:text-black transition duration-200">
-            <HiOutlineShoppingBag className="h-6 w-6 text-gray-700 hover:scale-110 transition-transform duration-200" />
-            {cartItemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
-                {cartItemCount}
-              </span>
+          {/* Right Icons */}
+          <div className="flex items-center space-x-6">
+            {user && user.role === "admin" && (
+              <Link
+                to="/admin"
+                className="block bg-black px-2 rounded text-sm text-white"
+              >
+                Admin
+              </Link>
             )}
-          </button>
 
-          {/* Mobile Nav Toggle */}
-          <button onClick={toggleNavDrawer} className="md:hidden">
-            <HiBars3BottomRight className="h-6 w-6 text-gray-700 hover:scale-110 transition-transform duration-200" />
-          </button>
-        </div>
-      </nav>
+            <Link
+              to="/profile"
+              className="hover:text-black transition duration-200"
+            >
+              <HiOutlineUser className="h-6 w-6 text-gray-700 hover:scale-110 transition-transform duration-200" />
+            </Link>
 
+            <button
+              onClick={toggleCartDrawer}
+              className="relative hover:text-black transition duration-200"
+            >
+              <HiOutlineShoppingBag className="h-6 w-6 text-gray-700 hover:scale-110 transition-transform duration-200" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+
+            {/* Mobile Nav Toggle */}
+            <button onClick={toggleNavDrawer} className="md:hidden">
+              <HiBars3BottomRight className="h-6 w-6 text-gray-700 hover:scale-110 transition-transform duration-200" />
+            </button>
+          </div>
+        </nav>
+      </div>
       {/* Cart Drawer */}
       <CartDrawer drawerOpen={drawerOpen} toggleCartDrawer={toggleCartDrawer} />
 
@@ -87,7 +103,10 @@ function Navbar() {
       >
         {/* Close Button */}
         <div className="flex justify-end p-4">
-          <button onClick={toggleNavDrawer} className="hover:text-black transition duration-200">
+          <button
+            onClick={toggleNavDrawer}
+            className="hover:text-black transition duration-200"
+          >
             <IoMdClose className="h-6 w-6 text-gray-600 hover:scale-110 transition-transform duration-200" />
           </button>
         </div>
@@ -95,9 +114,15 @@ function Navbar() {
         {/* Mobile Navigation Content */}
         <div className="p-6 space-y-6">
           {/* Logo and Home */}
-          <Link to="/" onClick={toggleNavDrawer} className="flex items-center space-x-3">
+          <Link
+            to="/"
+            onClick={toggleNavDrawer}
+            className="flex items-center space-x-3"
+          >
             <img src={Logo} alt="Topnish Logo" className="h-8" />
-            <span className="text-lg font-bold text-gray-800 hover:text-black">Topnish</span>
+            <span className="text-lg font-bold text-gray-800 hover:text-black">
+              Topnish
+            </span>
           </Link>
 
           {/* All Collections */}

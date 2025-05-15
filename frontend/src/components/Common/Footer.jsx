@@ -35,11 +35,16 @@ function Footer() {
           </form>
         </div>
 
+        {/* Products */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Products</h3>
           <ul className="space-y-3 text-gray-700">
-            <li><Link to="#" className="hover:text-gray-900 transition-colors">New Arrivals</Link></li>
-            <li><Link to="#" className="hover:text-gray-900 transition-colors">Best Sellers</Link></li>
+            {/* Removed New Arrivals */}
+            <li>
+              <Link to="/collections/all" className="hover:text-gray-900 transition-colors">
+                Best Sellers
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -48,12 +53,12 @@ function Footer() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Shop</h3>
           <ul className="space-y-3 text-gray-700">
             <li>
-              <Link to="#" className="hover:text-gray-900 transition-colors">
+              <Link to="/contact-us" className="hover:text-gray-900 transition-colors">
                 Contact Us
               </Link>
             </li>
             <li>
-              <Link to="#" className="hover:text-gray-900 transition-colors">
+              <Link to="/about" className="hover:text-gray-900 transition-colors">
                 About Us
               </Link>
             </li>
@@ -100,9 +105,12 @@ function Footer() {
             </a>
           </div>
           <p className="text-gray-600 font-medium">Support Mail</p>
-          <p className="text-gray-800 font-semibold text-lg flex items-center mt-2">
+          <a
+            href="mailto:contact@topnish.com"
+            className="text-gray-800 font-semibold text-lg flex items-center mt-2 hover:underline"
+          >
             <FiMail className="mr-2" /> contact@topnish.com
-          </p>
+          </a>
         </div>
       </div>
 

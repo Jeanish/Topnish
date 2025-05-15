@@ -9,6 +9,8 @@ const subscriberSchema = new mongoose.Schema({
         lowercase: true,
 
     },
+    code: { type: String, required: true, unique: true },
+    used: { type: Boolean, default: false },
     subscribedAt: {
         type:Date,
         default: Date.now,

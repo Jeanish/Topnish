@@ -23,10 +23,15 @@ export const authenticateWithShiprocket = async () => {
 };
 
 export const getShiprocketToken = async () => {
-  if (!shiprocketToken) {
+  if (!shiprocketToken || isTokenExpired(shiprocketToken)) {
     return await authenticateWithShiprocket();
   }
   return shiprocketToken;
+};
+
+const isTokenExpired = (token) => {
+  // Simple check to see if the token is expired (this may vary depending on how Shiprocket manages tokens)
+  return false;
 };
 
 

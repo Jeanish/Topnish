@@ -1,36 +1,43 @@
-import express from "express"
-import { Subscribe } from "../models/newsletter.model.js"
-import { asyncHandler } from "../utils/asyncHandler.js"
+import { Subscribe } from "../models/newsletter.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { transporter } from "../utils/mailer.js";
+import { v4 as uuidv4 } from "uuid";
 
-// @route POST /api/subscribees
-// @desc Handle newsletter subscription
-// @access Public
+const handleSubscription = asyncHandler(async (req, res) => {
+  const { email } = req.body;
 
-const handleSubscription = asyncHandler(async(req,res)=>{
-    const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
 
-    if(!email){
-        return res.status(400).json(
-            {message: "Email is required"}
-        )
-    }
+  let subscriber = await Subscribe.findOne({ email });
 
-    try {
-        let subscriber = await Subscribe.findOne({ email });
+  if (subscriber) {
+    return res.status(400).json({ message: "Email is already subscribed" });
+  }
 
-        if(subscriber){
-            return res.status(400).json({message : "email is already subscribed"});
-        }
+  // Generate a unique coupon code
+  const code = `WELCOME10-${uuidv4().slice(0, 6).toUpperCase()}`;
 
-        // Create a new subscriber
-        subscriber = new Subscribe({ email });
-        await subscriber.save();
+  // Save subscriber with code and default used=false
+  subscriber = new Subscribe({ email, code });
+  await subscriber.save();
 
-        res.status(201).json({ message: "Successfully subscribed to the newslatter! "})
-    } catch (error) {
-        console.error(error);
-        res.staus(500).json({ message: "Server Error"})
-    }
-})
+  // Send coupon email
+  const mailOptions = {
+    from: `"Topnish" <contact@topnish.com>`,  // ✅ correct
+    to: email,
+    subject: "Your 10% Discount Code 🎉",
+    html: `
+      <p>Thank you for subscribing to Topnish!</p>
+      <p>Yrsour exclusive 10% discount code is: <strong>${code}</strong></p>
+      <p>Use it at checkout and enjoy your discount!</p>
+    `,
+  };
 
-export {handleSubscription}
+  await transporter.sendMail(mailOptions);
+
+  res.status(201).json({ message: "Successfully subscribed and coupon sent!" });
+});
+
+export { handleSubscription };

@@ -22,6 +22,8 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 import ProtectedRoute from "./components/Common/ProtectedRoute";
 import AddProduct from "./components/Admin/AddProduct";
+import AboutUs from "./pages/AboutUs";
+import ContactUs from "./pages/ContactUs";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -36,6 +38,8 @@ function App() {
           <Route path="/" element={<UserLayout />}>
             <Route index element={<Home />} />
             <Route path="login" element={<Login />} />
+            <Route path="about" element={<AboutUs />} />
+            <Route path="contact-us" element={<ContactUs />} />
             <Route path="register" element={<Register />} />
             <Route path="profile" element={<Profile />} />
             <Route path="product/:id" element={<ProductDetails />} />
