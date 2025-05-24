@@ -42,10 +42,22 @@ const ProductDetails = ({ productId }) => {
     }
   }, [selectedProduct]);
 
-  const handleQuantityChange = (action) => {
-    if (action === "plus") setQuantity((prev) => prev + 1);
-    if (action === "minus" && quantity > 1) setQuantity((prev) => prev - 1);
-  };
+ const handleQuantityChange = (action) => {
+  if (action === "plus") {
+    if (quantity >= 2) {
+      toast.warning("Currently we have only 2 pieces left", {
+        duration: 1500,
+      });
+    } else {
+      setQuantity((prev) => prev + 1);
+    }
+  }
+
+  if (action === "minus" && quantity > 1) {
+    setQuantity((prev) => prev - 1);
+  }
+};
+
 
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) {

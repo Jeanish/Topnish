@@ -37,6 +37,11 @@ function UserManagement() {
   };
 
   const handleSubmit = (e) => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     e.preventDefault();
     dispatch(addUser(formData));
     setFormData({
@@ -48,10 +53,20 @@ function UserManagement() {
   };
 
   const handleRoleChange = (userId, newRole) => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     dispatch(updateUser({ id: userId, role: newRole }));
   };
 
   const handleDeleteUser = (userId) => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     if (window.confirm("Are you sure you want to delete this user?")) {
       // TODO: Add delete user logic here
         dispatch(deleteUser(userId));

@@ -33,6 +33,11 @@ function AddProduct() {
   });
 
   const handleChange = (e) => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     const { name, value, type, checked } = e.target;
 
     if (name in formData.dimensions) {
@@ -85,6 +90,11 @@ function AddProduct() {
   };
 
   const handleSubmit = async (e) => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     e.preventDefault();
 
     const productData = {

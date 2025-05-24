@@ -19,19 +19,30 @@ const handleSubscription = asyncHandler(async (req, res) => {
   // Generate a unique coupon code
   const code = `WELCOME10-${uuidv4().slice(0, 6).toUpperCase()}`;
 
+  const expiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000); // 6 hours
   // Save subscriber with code and default used=false
   subscriber = new Subscribe({ email, code });
   await subscriber.save();
 
   // Send coupon email
   const mailOptions = {
-    from: `"Topnish" <contact@topnish.com>`,  // ✅ correct
+    from: `Topnish <contact@topnish.com>`,  // ✅ clearer sender format
     to: email,
-    subject: "Your 10% Discount Code 🎉",
+    subject: "Your 10% Discount Code from Topnish",
+    text: `
+Thank you for subscribing to Topnish!
+
+Your exclusive 10% discount code is: ${code}
+
+Use it at checkout and enjoy your discount.
+
+Note: This coupon is valid for 6 hours only. Please check your 'Promotions' or 'Spam' folders if you don't see this email in your inbox.
+    `.trim(),
     html: `
-      <p>Thank you for subscribing to Topnish!</p>
-      <p>Yrsour exclusive 10% discount code is: <strong>${code}</strong></p>
-      <p>Use it at checkout and enjoy your discount!</p>
+      <p>Thank you for subscribing to <strong>Topnish</strong>!</p>
+      <p>Your exclusive 10% discount code is: <strong>${code}</strong></p>
+      <p>Use it at checkout and enjoy your discount.</p>
+      <p><strong>Note:</strong> This coupon is valid for <strong>6 hours only</strong>.</p>
     `,
   };
 

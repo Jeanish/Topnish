@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createCheckout } from "../../redux/slices/checkoutSlice";
 import axios from "axios";
-
+import { removeFromCart } from "../../redux/slices/cartSlice";
 function Checkout() {
   const navigate = useNavigate();
   const [checkoutId, setCheckoutId] = useState(null);
@@ -22,6 +22,14 @@ function Checkout() {
     phone: "",
   });
 
+  useEffect(() => {
+  const token = localStorage.getItem("userToken");
+  if (!user || !token) {
+    navigate("/login");
+  }
+}, [user, navigate]);
+
+
   // Ensure cart s loaded before procedding
   useEffect(() => {
     if (!cart || !cart.products || cart.products.length === 0) {
@@ -30,6 +38,11 @@ function Checkout() {
   }, [cart, navigate]);
 
   const handleCreateCheckout = async (e) => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     e.preventDefault();
     console.log("Checkout Items:", cart.products);
     if (cart && cart.products.length > 0) {
@@ -49,6 +62,11 @@ function Checkout() {
   };
 
   const handlePaymentSuccess = async () => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     try {
       await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/checkout/${checkoutId}/pay`,
@@ -72,6 +90,11 @@ function Checkout() {
   
 
   const handleFinalizeCheckout = async(checkoutId) => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/checkout/${checkoutId}/finalize`,
         {},
@@ -82,6 +105,7 @@ function Checkout() {
         }
       );
         navigate("/order-confirmation");
+        dispatch(removeFromCart())
     } catch (error) {
       console.error(error);
     }

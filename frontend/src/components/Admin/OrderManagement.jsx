@@ -12,6 +12,11 @@ function OrderManagement() {
     const {orders, loading, error} = useSelector((state) => state.adminOrders);
 
     useEffect(() => {
+        const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
         if(!user || user.role !== "admin"){
             navigate("/");
         }else{
@@ -20,6 +25,11 @@ function OrderManagement() {
     },[dispatch, user, navigate]);
 
     const handleStatusChange = (orderId, status) => {
+        const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
         dispatch(updateOrderStatus({id: orderId, status}));
     };
 

@@ -12,19 +12,31 @@ import {
 } from "../utils/shiprocket.service.js";
 import axios from "axios";
 import { OtpModel } from "../models/Otp.model.js";
+import { Coupon } from "../models/CouponModel.js";
 
 const checkOutSession = asyncHandler(async (req, res) => {
-  const { checkoutItems, shippingAddress, paymentMethod, totalPrice, phone } = req.body;
+  const { checkoutItems, shippingAddress, paymentMethod, totalPrice, phone, couponCode } = req.body;
 
   if (!checkoutItems || checkoutItems.length === 0) {
     throw new ApiError(400, "No items in checkout");
   }
 
-  // ✅ OTP verification check
-  const otpRecord = await OtpModel.findOne({ phone, verified: true });
-  if (!otpRecord || Date.now() - new Date(otpRecord.verifiedAt).getTime() > 5 * 60 * 1000) {
-    throw new ApiError(401, "Phone number not verified or OTP expired");
-  }
+  // OTP verification check
+  // const otpRecord = await OtpModel.findOne({ phone, verified: true });
+  // if (!otpRecord || Date.now() - new Date(otpRecord.verifiedAt).getTime() > 5 * 60 * 1000) {
+  //   throw new ApiError(401, "Phone number not verified or OTP expired");
+  // }
+
+   // Handle coupon if available
+   let coupon = null;
+   let discountAmount = 0;
+   if (couponCode) {
+     coupon = await Coupon.findOne({ code: couponCode, expired: false });
+ 
+     if (coupon && coupon.discountAmount) {
+       discountAmount = coupon.discountAmount;  // Assume fixed discount for simplicity, can be extended to percentage
+     }
+   }
 
   try {
     const newCheckout = await CheckOut.create({
@@ -32,16 +44,17 @@ const checkOutSession = asyncHandler(async (req, res) => {
       checkOutItems: checkoutItems,
       shippingAddress,
       paymentMethod,
-      totalPrice,
+      totalPrice: totalPrice - discountAmount,
       paymentStatus: paymentMethod === "Cash On Delivery" ? "COD Pending" : "Pending",
       isPaid: paymentMethod === "Cash On Delivery" ? false : true,
       phone: phone,
+      coupon: coupon ? { code: coupon.code, discountAmount, appliedAt: Date.now() } : null,  // Store coupon details
     });
 
     console.log(`Checkout created for user: ${req.user._id}`);
 
     // Clean OTP record after successful checkout creation
-    await OtpModel.deleteMany({ phone });
+    // await OtpModel.deleteMany({ phone });
 
     res.status(201).json(newCheckout);
   } catch (error) {

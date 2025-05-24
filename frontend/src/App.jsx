@@ -24,6 +24,7 @@ import ProtectedRoute from "./components/Common/ProtectedRoute";
 import AddProduct from "./components/Admin/AddProduct";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
+import TrackOrder from "./components/Cart/TrackOrder";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -43,6 +44,7 @@ function App() {
             <Route path="register" element={<Register />} />
             <Route path="profile" element={<Profile />} />
             <Route path="product/:id" element={<ProductDetails />} />
+            <Route path="/track-order" element={<TrackOrder />} />
             <Route
               path="collections/:collection"
               element={<CollectionPage />}

@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { RiDeleteBin3Line } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import {
@@ -6,6 +7,7 @@ import {
   updateCartItemQuantity,
 } from "../../redux/slices/cartSlice";
 import { useSelector } from "react-redux";
+import { toast } from "sonner";
 
 function CartContents({ userId, guestId }) {
   const dispatch = useDispatch();
@@ -14,6 +16,25 @@ function CartContents({ userId, guestId }) {
   // Handle adding or subtracting the cart
   const handleAddToCart = (productId, delta, quantity, size, color) => {
     const newQuantity = quantity + delta;
+
+    if (newQuantity > 2) {
+    toast.error("Currently we have only 2 pieces left out", {
+      duration: 2000,
+      style: {
+        background: "#fff5f5",
+        color: "#dc2626",
+        border: "1px solid #fecaca",
+        fontSize: "0.9rem",
+        fontWeight: 500,
+      },
+      iconTheme: {
+        primary: "#dc2626",
+        secondary: "#fff",
+      },
+    });
+    return;
+  }
+
     if (newQuantity >= 1) {
       dispatch(
         updateCartItemQuantity({
@@ -43,7 +64,7 @@ function CartContents({ userId, guestId }) {
             <img
               src={product.image}
               alt={product.name}
-              className="w-20 h-24 object-cover mr-4 rounnded"
+              className="w-20 h-24 object-cover mr-4 rounded"
             />
             <div>
               <h3>{product.name}</h3>
@@ -87,7 +108,7 @@ function CartContents({ userId, guestId }) {
           </div>
           <div>
             <p className="font-medium">
-            ₹{(product.price * product.quantity).toLocaleString()}
+              ₹{(product.price * product.quantity).toLocaleString()}
             </p>
             <button
               onClick={() =>
@@ -98,7 +119,7 @@ function CartContents({ userId, guestId }) {
                 )
               }
             >
-              <RiDeleteBin3Line className="h-6 w-6 mt-2 text-red" />
+              <RiDeleteBin3Line className="h-6 w-6 mt-2 text-red-500 hover:text-red-700" />
             </button>
           </div>
         </div>

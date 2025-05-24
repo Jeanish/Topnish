@@ -15,7 +15,11 @@ const subscriberSchema = new mongoose.Schema({
         type:Date,
         default: Date.now,
 
-    }
+    },
+    expiresAt: {
+        type: Date,
+        default: () => new Date(Date.now() + 6 * 60 * 60 * 1000), // 6 hours from now
+    },
 })
 
 export const Subscribe = mongoose.model("Subscribe", subscriberSchema);

@@ -108,36 +108,42 @@ import { OtpModel } from "../models/Otp.model.js";
 import { sendOTP } from "../utils/sms.service.js";
 
 // routes/authRoutes.js
+
 const sendOTPHandler = asyncHandler(async (req, res) => {
-    const { phone } = req.body;
-    if (!phone) return res.status(400).json({ message: 'Phone number is required' });
+  const { phone } = req.body;
   
-    const existing = await OtpModel.findOne({ phone });
-  
-    if (existing && Date.now() - existing.createdAt.getTime() < 60000) {
-      return res.status(429).json({ message: 'Please wait before requesting another OTP' });
-    }
-  
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  
-    await OtpModel.findOneAndUpdate(
-      { phone },
-      {
-        phone,
-        otp,
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 5 * 60000),
-        $inc: { attempts: 1 },
-      },
-      { upsert: true, new: true }
-    );
-  
-    await smsService.sendOtp(phone, otp); // Replace with real provider
-  
-    res.status(200).json({ message: 'OTP sent successfully' });
-  });
-  
-  
+  if (!phone) {
+    return res.status(400).json({ message: "Phone number is required" });
+  }
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  console.log("📲 Sending OTP", otp, "to", phone);
+
+  await sendOTP(phone, otp); // yeh correct call hoga ab
+
+  res.status(200).json({ message: "OTP sent successfully" });
+});
+
+
+import { sendOTPEmail } from "../utils/mail.service.js";
+
+// Inside your OTP handler function
+const sendOTPHandlerOfEmail = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Send OTP via email
+  try {
+    await sendOTPEmail(email, otp);
+    res.status(200).json({ message: 'OTP sent successfully to email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error sending OTP email' });
+  }
+};
+
   const verifyOTP = asyncHandler(async (req, res) => {
     const { phone, otp } = req.body;
     if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP required' });
@@ -171,5 +177,5 @@ const sendOTPHandler = asyncHandler(async (req, res) => {
   
   
 
-export { register,  login,profile, sendOTPHandler,verifyOTP };
+export { register,  login,profile, sendOTPHandlerOfEmail,sendOTPHandler,verifyOTP };
 

@@ -92,8 +92,16 @@ const checkOutSchema = new Schema({
     phone: {
         type: Number,
         required: true,
+    },
+    coupon: {
+        code: { type: String, default: null }, // The coupon code applied
+        discountAmount: { type: Number, default: 0 }, // Amount discounted from the total price
+        expirationDate: { type: Date, default: null }, // Coupon expiration date
+        appliedAt: { type: Date, default: Date.now }, // When the coupon was applied
+        used: { type: Boolean, default: false }, // If the coupon is used
+    },
+    
 
-    }
     
 },{timestamps:true});
 

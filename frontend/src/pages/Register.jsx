@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { registerUser } from "../redux/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { mergeCart } from "../redux/slices/cartSlice";
+import Now from "../assets/Now.png"
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -104,11 +105,13 @@ function Register() {
         </form>
       </div>
 
-      <div className="hidden md:block w-1/2 bg-gray-800">
-        <div className="h-full flex flex-col justify-center items-center">
-            <img src="" alt="Login to Account" className="h-[750px] w-full object-cover" />
-        </div>
-      </div>
+      <div className="hidden md:flex w-1/2 bg-gray-800 items-center justify-center p-4">
+              <img
+                src={Now}
+                alt="Login to Account"
+                className="max-h-[82vh] w-auto object-contain rounded-xl shadow-lg"
+              />
+            </div>
     </div>
   );
 }

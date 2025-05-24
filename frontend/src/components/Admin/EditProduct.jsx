@@ -26,6 +26,11 @@ function EditProduct() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     if(id){
       dispatch(fetchProductDetails(id));
     }
@@ -65,6 +70,11 @@ function EditProduct() {
   };
 
   const handleSubmit = (e) => {
+    const token = localStorage.getItem("userToken");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
     e.preventDefault();
     dispatch(updateProduct({ id, productData}));
     navigate("/admin/products");

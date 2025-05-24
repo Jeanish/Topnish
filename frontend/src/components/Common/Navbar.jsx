@@ -46,14 +46,23 @@ function Navbar() {
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex space-x-6">
-            <Link
-              to="/collections/all"
-              className="text-gray-700 hover:text-black text-sm font-medium uppercase transition duration-200"
-            >
-              All Collections
-            </Link>
-          </div>
+          {/* Desktop Nav */}
+<div className="hidden md:flex space-x-6">
+  <Link
+    to="/collections/all"
+    className="text-gray-700 hover:text-black text-sm font-medium uppercase transition duration-200"
+  >
+    All Collections
+  </Link>
+
+  <Link
+    to="/track-order"
+    className="text-gray-700 hover:text-black text-sm font-medium uppercase transition duration-200"
+  >
+    Track My Order
+  </Link>
+</div>
+
 
           {/* Right Icons */}
           <div className="flex items-center space-x-6">
@@ -112,6 +121,7 @@ function Navbar() {
         </div>
 
         {/* Mobile Navigation Content */}
+        {/* Mobile Navigation Content */}
         <div className="p-6 space-y-6">
           {/* Logo and Home */}
           <Link
@@ -133,6 +143,34 @@ function Navbar() {
           >
             All Collections
           </Link>
+
+          {/* Track My Order */}
+          <Link
+            to="/track-order"
+            onClick={toggleNavDrawer}
+            className="block text-base font-medium text-gray-700 hover:text-black transition"
+          >
+            Track My Order
+          </Link>
+
+          {/* Conditional: Profile or Login */}
+          {user ? (
+            <Link
+              to="/profile"
+              onClick={toggleNavDrawer}
+              className="block text-base font-medium text-gray-700 hover:text-black transition"
+            >
+              My Profile
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              onClick={toggleNavDrawer}
+              className="block text-base font-medium text-gray-700 hover:text-black transition"
+            >
+              Login / Signup
+            </Link>
+          )}
         </div>
       </div>
     </>
